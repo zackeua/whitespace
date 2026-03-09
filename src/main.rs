@@ -4,9 +4,11 @@ use std::fs;
 
 mod instruction;
 mod parser;
+mod vm;
 
 // use instruction::Instruction;
 use parser::parse;
+use vm::interpret;
 
 fn read_file(filename: String) -> Vec<u8> {
     let data = fs::read(filename);
@@ -34,6 +36,8 @@ fn main() {
     let filename = &args[1];
     let whitespace_source = read_file(filename.to_string());
 
-    let _instructions = parse(&whitespace_source);
+    let instructions = parse(&whitespace_source);
+
+    interpret(&instructions);
 
 }
