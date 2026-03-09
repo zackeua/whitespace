@@ -6,21 +6,18 @@ pub fn parse(source: &Vec<u8>) -> Vec<Instruction> {
 
     while pc < source.len() {
         match source[pc] {
-            b' ' => parse_stack(source, &mut pc, &mut program),
-            b'\t' => parse_tab(source, &mut pc, &mut program),
-            b'\n' => parse_flow(source, &mut pc, &mut program),
-            _ => {}
+            b' ' => { pc += 1; parse_stack(source, &mut pc, &mut program); },
+            b'\t' => { pc += 1; parse_tab(source, &mut pc, &mut program); },
+            b'\n' => {pc += 1; parse_flow(source, &mut pc, &mut program); },
+            _ => { pc += 1; }
         }
     }
     program
 }
 
 fn parse_stack(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) {
-    *pc += 1;
+    if *pc >= chars.len() { return; }
 
-    if *pc >= chars.len() {
-        return;
-    }
     match chars[*pc] {
         b' ' => {
             *pc += 1;
@@ -30,6 +27,7 @@ fn parse_stack(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) 
 
         b'\n' => {
             *pc += 1;
+            if *pc >= chars.len() { return; }
             match chars[*pc] {
                 b' ' => program.push(Instruction::Dup),
                 b'\t' => program.push(Instruction::Swap),
@@ -44,31 +42,21 @@ fn parse_stack(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) 
 }
 
 fn parse_tab(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) {
-    *pc += 1;
-
-    if *pc >= chars.len() {
-        return;
-    }
+    if *pc >= chars.len() { return; }
     match chars[*pc] {
-        b' ' => parse_arithmetic(chars, pc, program),
-        b'\t' => parse_heap_access(chars, pc, program),
-        b'\n' => parse_io(chars, pc, program),
+        b' ' => { *pc += 1; parse_arithmetic(chars, pc, program) },
+        b'\t' => { *pc += 1; parse_heap_access(chars, pc, program) },
+        b'\n' => { *pc += 1; parse_io(chars, pc, program) },
         _ => { panic!("invalid instruction"); },
     }
 }
 
 fn parse_arithmetic(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) {
-    *pc += 1;
-    if *pc >= chars.len() {
-        return;
-    }
+    if *pc + 1 >= chars.len() { panic!("unexpected end of input while parsing arithmetic"); }
+    
     let c1 = chars[*pc];
-
-    *pc += 1;
-    if *pc >= chars.len() {
-        return;
-    }
-    let c2 = chars[*pc];
+    let c2 = chars[*pc + 1];
+    *pc += 2;
 
     match (c1, c2) {
         (b' ', b' ') => program.push(Instruction::Add),
@@ -81,11 +69,7 @@ fn parse_arithmetic(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instructi
 }
 
 fn parse_heap_access(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) {
-    *pc += 1;
-
-    if *pc >= chars.len() {
-        return;
-    }
+    if *pc >= chars.len() { return; }
     match chars[*pc] {
         b' ' => program.push(Instruction::Store),
         b'\t' => program.push(Instruction::Load),
@@ -96,19 +80,11 @@ fn parse_heap_access(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruct
 }
 
 fn parse_io(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) {
-    *pc += 1;
-    if *pc >= chars.len() {
-        return;
-    }
+    if *pc + 1 >= chars.len() { return; }
+
     let c1 = chars[*pc];
-
-    *pc += 1;
-    if *pc >= chars.len() {
-        return;
-    }
-    let c2 = chars[*pc];
-
-    *pc += 1;
+    let c2 = chars[*pc + 1];
+    *pc += 2;
 
     match (c1, c2) {
         (b' ', b' ') => program.push(Instruction::PrintChar),
@@ -120,19 +96,11 @@ fn parse_io(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) {
 }
 
 fn parse_flow(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) {
-    *pc += 1;
-    if *pc >= chars.len() {
-        return;
-    }
+    if *pc + 1 >= chars.len() { return; }
+
     let c1 = chars[*pc];
-
-    *pc += 1;
-    if *pc >= chars.len() {
-        return;
-    }
-    let c2 = chars[*pc];
-
-    *pc += 1;
+    let c2 = chars[*pc + 1];
+    *pc += 2;
 
     match (c1, c2) {
         (b' ', b' ') => {
