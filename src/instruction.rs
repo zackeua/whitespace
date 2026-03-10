@@ -5,6 +5,8 @@ pub enum Instruction {
     Dup,
     Swap,
     Drop,
+    Copy,
+    Slide,
 
     // Arithmetic
     Add,
