@@ -37,6 +37,24 @@ fn parse_stack(chars: &Vec<u8>, pc: &mut usize, program: &mut Vec<Instruction>) 
             *pc += 1;
         },
 
+        b'\t' => {
+            *pc += 1;
+            if *pc >= chars.len() { return; }
+            match chars[*pc] {
+                b' ' => {
+                    *pc += 1;
+                    let n = parse_number(chars, pc);
+                    program.push(Instruction::Copy(n));
+                },
+                b'\t' => {
+                    *pc += 1;
+                    let n = parse_number(chars, pc);
+                    program.push(Instruction::Slide(n));
+                },
+                _ => { panic!("invalid stack instruction") },
+            }
+        }
+
         _ => { panic!("invalid stack instruction"); }
     }
 }
