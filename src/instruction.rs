@@ -5,8 +5,8 @@ pub enum Instruction {
     Dup,
     Swap,
     Drop,
-    Copy,
-    Slide,
+    Copy(i64),
+    Slide(i64),
 
     // Arithmetic
     Add,

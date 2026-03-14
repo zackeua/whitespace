@@ -54,6 +54,18 @@ fn run(program: &Vec<Instruction>, vm: &mut VM) {
                 vm.stack.push(a);
             },
             Instruction::Drop => { vm.stack.pop().expect("stack underflow"); },
+            Instruction::Copy(n) => {
+                let top_index = vm.stack.len() - 1 - n as usize;
+                let val = vm.stack[top_index];
+                vm.stack.push(val);
+            },
+            Instruction::Slide(n) => {
+                let top = vm.stack.pop().expect("stack underflow");
+                for _ in 0..n {
+                    vm.stack.pop();
+                }
+                vm.stack.push(top);
+            },
 
             Instruction::Add => {
                 let b = vm.stack.pop().expect("stack underflow");
