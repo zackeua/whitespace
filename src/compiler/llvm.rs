@@ -142,6 +142,178 @@ impl<'ctx> LLVMCompiler<'ctx> {
         };
         self.builder.build_store(stack_ptr, i64_type.const_int(0, false)).expect("clear failed");
     }
+    
+
+    fn add(&self) {
+        let i64_type = self.context.i64_type();
+        
+        // load current stack pointer
+        let sp_val = self.builder.build_load(self.sp.unwrap(), "sp_val").expect("load sp failed").into_int_value();
+
+        // Compute indices of the top two elements: sp - 1 and sp - 2
+        let idx_top = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "idx_top").unwrap();
+        let idx_second = self.builder.build_int_sub(sp_val, i64_type.const_int(2, false), "idx_second").unwrap();
+
+        // Get pointers to top two stack elements
+        let ptr_top = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_top], "ptr_top")
+                .expect("gep failed")
+        };
+        let ptr_second = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_second], "ptr_second")
+                .expect("gep failed")
+        };
+
+        // Load values
+        let val_top = self.builder.build_load(ptr_top, "val_top").expect("load top failed");
+        let val_second = self.builder.build_load(ptr_second, "val_second").expect("load second failed");
+
+        // Add
+        let result = self.builder.build_int_add(val_second.into_int_value(), val_top.into_int_value(), "add_result").unwrap();
+
+        // Store result back in second-to-top slot
+        let _ = self.builder.build_store(ptr_second, result);
+        // Decrement sp by 1 to pop the top element
+        let new_sp = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "sp_dec").unwrap();
+        self.builder.build_store(self.sp.unwrap(), new_sp).expect("store sp failed");
+    }
+
+    fn sub(&self) {
+        let i64_type = self.context.i64_type();
+        
+        // load current stack pointer
+        let sp_val = self.builder.build_load(self.sp.unwrap(), "sp_val").expect("load sp failed").into_int_value();
+
+        // Compute indices of the top two elements: sp - 1 and sp - 2
+        let idx_top = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "idx_top").unwrap();
+        let idx_second = self.builder.build_int_sub(sp_val, i64_type.const_int(2, false), "idx_second").unwrap();
+
+        // Get pointers to top two stack elements
+        let ptr_top = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_top], "ptr_top")
+                .expect("gep failed")
+        };
+        let ptr_second = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_second], "ptr_second")
+                .expect("gep failed")
+        };
+
+        // Load values
+        let val_top = self.builder.build_load(ptr_top, "val_top").expect("load top failed");
+        let val_second = self.builder.build_load(ptr_second, "val_second").expect("load second failed");
+
+        // Subtract
+        let result = self.builder.build_int_sub(val_second.into_int_value(), val_top.into_int_value(), "sub_result").unwrap();
+
+        // Store result back in second-to-top slot
+        let _ = self.builder.build_store(ptr_second, result);
+        // Decrement sp by 1 to pop the top element
+        let new_sp = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "sp_dec").unwrap();
+        self.builder.build_store(self.sp.unwrap(), new_sp).expect("store sp failed");
+    }
+
+    fn mul(&self) {
+        let i64_type = self.context.i64_type();
+        
+        // load current stack pointer
+        let sp_val = self.builder.build_load(self.sp.unwrap(), "sp_val").expect("load sp failed").into_int_value();
+
+        // Compute indices of the top two elements: sp - 1 and sp - 2
+        let idx_top = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "idx_top").unwrap();
+        let idx_second = self.builder.build_int_sub(sp_val, i64_type.const_int(2, false), "idx_second").unwrap();
+
+        // Get pointers to top two stack elements
+        let ptr_top = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_top], "ptr_top")
+                .expect("gep failed")
+        };
+        let ptr_second = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_second], "ptr_second")
+                .expect("gep failed")
+        };
+
+        // Load values
+        let val_top = self.builder.build_load(ptr_top, "val_top").expect("load top failed");
+        let val_second = self.builder.build_load(ptr_second, "val_second").expect("load second failed");
+
+        // Multiply
+        let result = self.builder.build_int_mul(val_second.into_int_value(), val_top.into_int_value(), "mul_result").unwrap();
+
+        // Store result back in second-to-top slot
+        let _ = self.builder.build_store(ptr_second, result);
+        // Decrement sp by 1 to pop the top element
+        let new_sp = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "sp_dec").unwrap();
+        self.builder.build_store(self.sp.unwrap(), new_sp).expect("store sp failed");
+    }
+
+    fn div(&self) {
+        let i64_type = self.context.i64_type();
+        
+        // load current stack pointer
+        let sp_val = self.builder.build_load(self.sp.unwrap(), "sp_val").expect("load sp failed").into_int_value();
+
+        // Compute indices of the top two elements: sp - 1 and sp - 2
+        let idx_top = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "idx_top").unwrap();
+        let idx_second = self.builder.build_int_sub(sp_val, i64_type.const_int(2, false), "idx_second").unwrap();
+
+        // Get pointers to top two stack elements
+        let ptr_top = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_top], "ptr_top")
+                .expect("gep failed")
+        };
+        let ptr_second = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_second], "ptr_second")
+                .expect("gep failed")
+        };
+
+        // Load values
+        let val_top = self.builder.build_load(ptr_top, "val_top").expect("load top failed");
+        let val_second = self.builder.build_load(ptr_second, "val_second").expect("load second failed");
+
+        // Divide
+        let result = self.builder.build_int_signed_div(val_second.into_int_value(), val_top.into_int_value(), "div_result").unwrap();
+
+        // Store result back in second-to-top slot
+        let _ = self.builder.build_store(ptr_second, result);
+        // Decrement sp by 1 to pop the top element
+        let new_sp = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "sp_dec").unwrap();
+        self.builder.build_store(self.sp.unwrap(), new_sp).expect("store sp failed");
+    }
+
+    fn modulo(&self) {
+        let i64_type = self.context.i64_type();
+        
+        // load current stack pointer
+        let sp_val = self.builder.build_load(self.sp.unwrap(), "sp_val").expect("load sp failed").into_int_value();
+
+        // Compute indices of the top two elements: sp - 1 and sp - 2
+        let idx_top = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "idx_top").unwrap();
+        let idx_second = self.builder.build_int_sub(sp_val, i64_type.const_int(2, false), "idx_second").unwrap();
+
+        // Get pointers to top two stack elements
+        let ptr_top = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_top], "ptr_top")
+                .expect("gep failed")
+        };
+        let ptr_second = unsafe {
+            self.builder.build_in_bounds_gep(self.stack.unwrap(), &[i64_type.const_int(0, false), idx_second], "ptr_second")
+                .expect("gep failed")
+        };
+
+        // Load values
+        let val_top = self.builder.build_load(ptr_top, "val_top").expect("load top failed");
+        let val_second = self.builder.build_load(ptr_second, "val_second").expect("load second failed");
+
+        // Modulo
+        let result = self.builder.build_int_signed_rem(val_second.into_int_value(), val_top.into_int_value(), "mod_result").unwrap();
+
+        // Store result back in second-to-top slot
+        let _ = self.builder.build_store(ptr_second, result);
+        // Decrement sp by 1 to pop the top element
+        let new_sp = self.builder.build_int_sub(sp_val, i64_type.const_int(1, false), "sp_dec").unwrap();
+        self.builder.build_store(self.sp.unwrap(), new_sp).expect("store sp failed");
+    }
+
 
     fn end(&self) {
         let _ = self.builder.build_return(Some(&self.context.i32_type().const_int(0, false)));
@@ -225,6 +397,17 @@ pub fn compile(program: &Vec<Instruction>) {
             Instruction::Dup => compiler.dup(),
             Instruction::Swap => compiler.swap(),
             Instruction::Drop => compiler.drop(),
+
+            Instruction::Add => compiler.add(),
+            Instruction::Sub => compiler.sub(),
+            Instruction::Mul => compiler.mul(),
+            Instruction::Div => compiler.div(),
+            Instruction::Mod => compiler.modulo(),
+
+
+
+
+
             Instruction::End => compiler.end(),
             Instruction::PrintChar => compiler.impl_print_char(),
             _ => {}
@@ -250,5 +433,42 @@ pub fn compile(program: &Vec<Instruction>) {
 
     target_machine
         .write_to_file(&compiler.module, FileType::Object, Path::new("output.o")).expect("Failed to write object file");
+
+    build_executable(&compiler.module, "program");
     
+}
+
+
+pub fn build_executable(module: &inkwell::module::Module, output: &str) {
+    // Initialize LLVM targets
+    Target::initialize_all(&InitializationConfig::default());
+
+    let triple = TargetMachine::get_default_triple();
+    let target = Target::from_triple(&triple).expect("Failed to get target");
+
+    let target_machine = target
+        .create_target_machine(
+            &triple,
+            "generic",
+            "",
+            OptimizationLevel::Default,
+            RelocMode::Default,
+            CodeModel::Default,
+        )
+        .expect("Failed to create target machine");
+
+    // Emit object file
+    let obj_file = format!("{}.o", output);
+
+    target_machine
+        .write_to_file(module, FileType::Object, Path::new(&obj_file))
+        .expect("Failed to write object file");
+
+    // Link with clang
+    Command::new("clang")
+        .args([&obj_file, "-o", output])
+        .status()
+        .expect("Failed to run clang");
+
+    println!("Built executable: {}", output);
 }
