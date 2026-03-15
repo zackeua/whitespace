@@ -99,10 +99,11 @@ Build the project:
 cargo build
 ```
 
-Run the project:
+Run the project (currently only supports a minimal subset of the language):
 
 ```
-cargo run
+cargo run code/hello.ws
+./program
 ```
 
 ---
