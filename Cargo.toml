@@ -1,5 +1,5 @@
 [package]
-name = "Whitespace"
+name = "whitespace"
 version = "0.1.0"
 edition = "2024"
 licence = "MIT"
